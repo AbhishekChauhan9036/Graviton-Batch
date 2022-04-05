@@ -1,5 +1,5 @@
 /*
-// Information about the class Node
+// Information- about the class Node
 class Node{
     int data;
     Node left;
