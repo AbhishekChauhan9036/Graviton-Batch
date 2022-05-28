@@ -1,0 +1,215 @@
+<!-- HTML ...........................-->
+<!DOCTYPE html>
+  <body>
+    <div class="mainContainer">
+      <div>
+        <span class="Evey">Mine Sweeper</span>
+        <div class="container" id="container"></div>
+      </div>
+      <div class="right">
+        <p>
+          Score :
+          <span id="gameScore"></span>
+        </p>
+        <button id="resetButton" onclick="resetGrid()">Reset</button>
+        <p>
+          Result :
+          <span id="resultDisplay"></span>
+        </p>
+      </div>
+    </div>
+  </body>
+</html>
+
+
+
+
+/* css..................................  */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-weight: bold;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+body {
+  background: #ffffff;
+}
+
+.mainContainer {
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+  height: 100vh;
+  max-width: 1250px;
+}
+
+.Evey {
+  font-size: 1.5rem;
+  color: black;
+  margin-left: 20px;
+}
+
+.container {
+  border-radius: 5px;
+  padding: 0.3rem;
+  background-color: #ffffff;
+  display: grid;
+  grid-template: repeat(9, 50px) / repeat(9, 50px);
+  grid-gap: 3px;
+  border: 2px solid black;
+}
+
+.right {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 200px;
+  background: #d8d8d8;
+  width: 200px;
+  font-size: 1.3rem;
+  border-radius: 1rem;
+  border: 2px solid black;
+}
+
+.right button {
+  border: 2px solid black;
+  color: black;
+  background: #f2f2f2;
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 0.5rem 2rem;
+  border-radius: 0.3rem;
+}
+
+.cell {
+  border-radius: 3px;
+  background-color: #d8d8d8;
+  cursor: pointer;
+}
+
+.safe {
+  background-color: #2dcc70;
+}
+
+.containBomb {
+  background-color: red;
+}
+
+@media only screen and (max-width: 750px) {
+  .mainContainer {
+    flex-direction: column;
+  }
+}
+
+@media only screen and (max-width: 510px) {
+  .container {
+    grid-template: repeat(9, 40px) / repeat(9, 40px);
+  }
+}
+
+@media only screen and (max-width: 410px) {
+  .container {
+    grid-template: repeat(9, 30px) / repeat(9, 30px);
+  }
+}
+
+
+
+
+
+
+
+// JS PArt,,,,,,,,,,,,,,,,,,,,,,
+
+
+
+window.onload = loadGrid();
+var bomb;
+var score = 0;
+function loadGrid() {
+  const container = document.getElementById("container");
+  const gameScore = document.getElementById("gameScore");
+  const resultDisplay = document.getElementById("resultDisplay");
+  gameScore.innerHTML = "0";
+  resultDisplay.innerHTML = "";
+
+  container.innerHTML = "";
+  for (let i = 1; i <= 81; i++) {
+    const cell = document.createElement("div");
+    cell.id = `cell_${i}`;
+    cell.classList.add("cell");
+    cell.addEventListener("click", updateGame);
+    container.append(cell);
+  }
+
+  score = 0;
+  window.random = [];
+  while (window.random.length < 10) {
+    var r = Math.floor(Math.random() * 81) + 1;
+    if (window.random.indexOf(r) === -1) window.random.push(r);
+  }
+
+  for (let b of window.random) {
+    const cell = document.getElementById(`cell_${b}`);
+    cell.classList.add("bomb");
+  }
+
+}
+
+function revealBombs(cell_id) {
+  document.getElementById(cell_id).classList.add("containBomb");
+  document.getElementById("resultDisplay").innerText = "game over";
+
+  for (let b of window.random) {
+    document.getElementById(`cell_${b}`).style.backgroundImage =
+      "url(https://img.icons8.com/emoji/48/000000/bomb-emoji.png)";
+  }
+
+  for (let i = 1; i <= 81; i++) {
+    document
+      .getElementById(`cell_${i}`)
+      .removeEventListener("click", updateGame);
+  }
+}
+
+function allSafeSelected() {
+  const safeElements = document.getElementsByClassName("safe");
+  return safeElements.length >= 70 ? true : false;
+}
+
+function loadSafe(cell_id) {
+  if (allSafeSelected()) {
+    document.getElementById("resultDisplay").innerText = "win";
+    for (let b of window.random) {
+      document
+        .getElementById(`cell_${b}`)
+        .removeEventListener("click", updateGame);
+    }
+  }
+  document.getElementById(cell_id).classList.add("safe");
+  document.getElementById(cell_id).removeEventListener("click", updateGame);
+  score += 1;
+  document.getElementById("gameScore").innerText = score;
+}
+
+function updateGame() {
+  if (this.classList.contains("bomb")) {
+    revealBombs(this.id);
+  } else {
+    loadSafe(this.id);
+  }
+}
+
+function resetGrid() {
+  loadGrid();
+}
+
+
+
+
+
